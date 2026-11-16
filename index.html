@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171923"><title>世界檔案庫｜World Archive</title>
+<style>
+:root{color-scheme:dark;--bg:#101219;--panel:#191d28;--panel2:#202635;--line:#30394b;--ink:#edf0f6;--muted:#9ba6b8;--accent:#c8a7e8;--accent2:#8dc9c4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#28223a 0,transparent 38%),var(--bg);color:var(--ink);font:15px/1.65 system-ui,-apple-system,"Noto Sans TC",sans-serif}
+header{padding:42px max(22px,calc((100% - 1120px)/2)) 28px;border-bottom:1px solid var(--line)}
+.eyebrow{color:var(--accent2);letter-spacing:.18em;font-size:11px;font-weight:700}h1{font-size:clamp(30px,5vw,48px);margin:8px 0 4px;letter-spacing:.04em}header p{margin:0;color:var(--muted)}
+main{max-width:1120px;margin:auto;padding:26px 22px 70px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+input,select{background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:11px 13px;font:inherit}input{flex:1;min-width:190px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px}.tab{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:8px 14px;border-radius:999px;cursor:pointer}.tab.active{background:#342b45;border-color:#82689e;color:#fff}
+.hero{background:linear-gradient(120deg,#282239,#1b2c35);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:22px}.hero strong{font-size:18px}.hero p{margin:6px 0 0;color:#c0c8d6}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:14px}.card{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:15px;padding:17px;cursor:pointer;transition:.18s}.card:hover{transform:translateY(-2px);border-color:#8a72a5}.card h3{margin:0 0 4px;font-size:18px}.meta{color:var(--accent2);font-size:12px}.card p{color:var(--muted);margin:10px 0 0;font-size:14px}.pill{display:inline-block;border:1px solid #4c5264;border-radius:99px;padding:2px 8px;color:#c7cede;font-size:11px;margin:8px 5px 0 0}
+.section-title{font-size:20px;margin:28px 0 13px}.detail{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:18px}.detail h2{margin:0 0 5px}.detail .back{background:none;border:0;color:var(--accent2);padding:0;cursor:pointer;font:inherit;margin-bottom:15px}.detail dl{display:grid;grid-template-columns:110px 1fr;gap:8px 14px}.detail dt{color:var(--muted)}.detail dd{margin:0;white-space:pre-wrap}.empty{color:var(--muted);padding:24px;text-align:center}
+footer{max-width:1120px;margin:auto;padding:0 22px 35px;color:var(--muted);font-size:12px}
+@media(max-width:560px){header{padding-top:30px}.detail dl{grid-template-columns:1fr;gap:2px}.detail dd{margin-bottom:10px}}
+</style></head>
+<body>
+<header><div class="eyebrow">PERSONAL LORE DATABASE · EST. 2026</div><h1>世界檔案庫</h1><p>角色、關係、設定與故事紀錄。持續整理，逐步擴充。</p></header>
+<main>
+<div class="hero"><strong>檔案索引 / ARCHIVE INDEX</strong><p>目前收錄未來機器人科幻戀愛世界的核心設定。選擇分類或搜尋角色，開啟個別檔案。</p></div>
+<div class="toolbar"><input id="search" type="search" placeholder="搜尋角色、身份、關鍵字……" aria-label="搜尋"><select id="sort"><option value="order">依周目排序</option><option value="name">依名稱排序</option></select></div>
+<nav class="tabs" id="tabs"></nav><div id="content"></div>
+</main><footer>WORLD ARCHIVE · 資料以檔案庫 JSON 為準。每次更新均可在 GitHub 查看版本紀錄。</footer>
+<script>
+let DB;let category="全部";const $=s=>document.querySelector(s);
+async function init(){try{const r=await fetch("./data/world.json");DB=await r.json();render()}catch(e){$("#content").innerHTML='<div class="empty">檔案載入失敗，請確認 data/world.json 已部署。</div>'}}
+function render(){const cats=["全部","一周目","二周目","三周目","世界設定"];$("#tabs").innerHTML=cats.map(c=>'<button class="tab '+(category===c?'active':'')+'" data-cat="'+c+'">'+c+'</button>').join("");document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dataset.cat;render()});
+const q=$("#search").value.trim().toLowerCase();let chars=DB.characters.filter(x=>(category==="全部"||category===x.round)&&[x.name,x.role,x.summary,x.personality,x.notes].join(" ").toLowerCase().includes(q));if($("#sort").value==="name")chars.sort((a,b)=>a.name.localeCompare(b.name,"zh-Hant"));else chars.sort((a,b)=>a.order-b.order);
+let out="";if(category==="全部"||category==="世界設定"){if(!q||[DB.world.title,DB.world.summary,DB.world.setting].join(" ").toLowerCase().includes(q))out+='<h2 class="section-title">世界設定</h2><div class="card" id="world-card"><h3>'+DB.world.title+'</h3><div class="meta">WORLD SETTING</div><p>'+DB.world.summary+'</p></div>'}
+out+='<h2 class="section-title">角色檔案 <span class="meta">/ '+chars.length+' RECORDS</span></h2><div class="grid">'+chars.map(x=>'<article class="card" data-id="'+x.id+'"><h3>'+x.name+'</h3><div class="meta">'+x.round+' · '+x.role+'</div><p>'+x.summary+'</p><span class="pill">'+x.operation+'</span><span class="pill">'+x.height+'</span></article>').join("")+'</div>';$("#content").innerHTML=out;if(!chars.length&&category!=="世界設定")$("#content").innerHTML+='<div class="empty">沒有符合條件的檔案。</div>';
+document.querySelectorAll("[data-id]").forEach(c=>c.onclick=()=>detail(c.dataset.id));const wc=$("#world-card");if(wc)wc.onclick=()=>worldDetail()}
+function detail(id){const x=DB.characters.find(c=>c.id===id);$("#content").innerHTML='<section class="detail"><button class="back" id="back">← 返回檔案列表</button><div class="meta">'+x.round+' / '+x.role+'</div><h2>'+x.name+'</h2><dl>'+[['運作時間',x.operation],['身高',x.height],['性格',x.personality],['外觀／特徵',x.appearance],['背景與設定',x.notes],['互動與關係',x.relationships]].filter(a=>a[1]).map(a=>'<dt>'+a[0]+'</dt><dd>'+a[1]+'</dd>').join("")+'</dl></section>';$("#back").onclick=render;window.scrollTo(0,0)}
+function worldDetail(){const x=DB.world;$("#content").innerHTML='<section class="detail"><button class="back" id="back">← 返回檔案列表</button><h2>'+x.title+'</h2><dl>'+[['世界概述',x.summary],['時代背景',x.setting],['核心規則',x.rules],['重要關係',x.relationships]].map(a=>'<dt>'+a[0]+'</dt><dd>'+a[1]+'</dd>').join("")+'</dl></section>';$("#back").onclick=render;window.scrollTo(0,0)}
+$("#search").addEventListener("input",render);$("#sort").addEventListener("change",render);init();
+</script></body></html>
