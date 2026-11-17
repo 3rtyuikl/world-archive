@@ -123,7 +123,7 @@
     {
       "id": "tutor",
       "order": 10,
-      "round": "二周目",
+      "round": "三周目",
       "name": "家教機器人",
       "role": "家教機器人",
       "operation": "2年",
