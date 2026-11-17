@@ -26,7 +26,7 @@ footer{max-width:1120px;margin:auto;padding:0 22px 35px;color:var(--muted);font-
 </main><footer>WORLD ARCHIVE · 資料以檔案庫 JSON 為準。每次更新均可在 GitHub 查看版本紀錄。</footer>
 <script>
 let DB;let category="全部";const $=s=>document.querySelector(s);
-async function init(){try{const r=await fetch("./data/world.json");DB=await r.json();render()}catch(e){$("#content").innerHTML='<div class="empty">檔案載入失敗，請確認 data/world.json 已部署。</div>'}}
+async function init(){try{const r=await fetch("./data/world.json?v=20261117-2",{cache:"no-store"});DB=await r.json();render()}catch(e){$("#content").innerHTML='<div class="empty">檔案載入失敗，請確認 data/world.json 已部署。</div>'}}
 function render(){const cats=["全部","一周目","二周目","三周目","四周目","世界設定"];$("#tabs").innerHTML=cats.map(c=>'<button class="tab '+(category===c?'active':'')+'" data-cat="'+c+'">'+c+'</button>').join("");document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{category=b.dataset.cat;render()});
 const q=$("#search").value.trim().toLowerCase();let chars=DB.characters.filter(x=>(category==="全部"||category===x.round)&&[x.name,x.role,x.summary,x.personality,x.notes].join(" ").toLowerCase().includes(q));if($("#sort").value==="name")chars.sort((a,b)=>a.name.localeCompare(b.name,"zh-Hant"));else chars.sort((a,b)=>a.order-b.order);
 let out="";if(category==="全部"||category==="世界設定"){if(!q||[DB.world.title,DB.world.summary,DB.world.setting].join(" ").toLowerCase().includes(q))out+='<h2 class="section-title">世界設定</h2><div class="card" id="world-card"><h3>'+DB.world.title+'</h3><div class="meta">WORLD SETTING</div><p>'+DB.world.summary+'</p></div>'}
